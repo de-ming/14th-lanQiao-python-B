@@ -47,11 +47,7 @@ Python 大学 B 组
 
 【问题描述】
 
-给定一个仅含小写字母的字符串 s ，假设 s 的一个子序列 t 的第 i 个字符 对应了原字符串中的第 pi 个字符。我们定义 s 的一个松散子序列为：对于 i > 1
-
-总是有 pi − pi−1 ≥ 2 。设一个子序列的价值为其包含的每个字符的价值之和 (
-
-a ∼ z 分别为 1 ∼ 26 ) 。 求 s 的松散子序列中的最大价值。
+给定一个仅含小写字母的字符串 s ，假设 s 的一个子序列 t 的第 i 个字符 对应了原字符串中的第 pi 个字符。我们定义 s 的一个松散子序列为：对于 i > 1总是有 pi − pi−1 ≥ 2 。设一个子序列的价值为其包含的每个字符的价值之和 (a ∼ z 分别为 1 ∼ 26 ) 。 求 s 的松散子序列中的最大价值。
 
 【输入格式】
 
@@ -92,9 +88,7 @@ azaazaz
 
 【问题描述】
 
-有一根长度为 len 的横向的管道，该管道按照单位长度分为 len 段，每一段 的中央有一个可开关的阀门和一个检测水流的传感器。 一开始管道是空的，位于 Li 的阀门会在 S i 时刻打开，并不断让水流入管 道。 对于位于 Li 的阀门，它流入的水在 Ti (Ti ≥ S i) 时刻会使得从第 Li−(Ti−S i)
-
-段到第 Li + (Ti − S i) 段的传感器检测到水流。 求管道中每一段中间的传感器都检测到有水流的最早时间。
+有一根长度为 len 的横向的管道，该管道按照单位长度分为 len 段，每一段 的中央有一个可开关的阀门和一个检测水流的传感器。 一开始管道是空的，位于 Li 的阀门会在 S i 时刻打开，并不断让水流入管 道。 对于位于 Li 的阀门，它流入的水在 Ti (Ti ≥ S i) 时刻会使得从第 Li−(Ti−S i)段到第 Li + (Ti − S i) 段的传感器检测到水流。 求管道中每一段中间的传感器都检测到有水流的最早时间。
 
 【输入格式】
 
@@ -107,6 +101,7 @@ azaazaz
 【样例输入】
 
 3 10 
+
 1 1
 6 5
 10 2
@@ -133,9 +128,7 @@ azaazaz
 
 【问题描述】
 
-小蓝有一个保险箱，保险箱上共有 n 位数字。 小蓝可以任意调整保险箱上的每个数字，每一次操作可以将其中一位增加
-
-1 或减少 1 。 当某位原本为 9 或 0 时可能会向前（左边）进位/退位，当最高位（左边第 一位）上的数字变化时向前的进位或退位忽略。 例如：
+小蓝有一个保险箱，保险箱上共有 n 位数字。 小蓝可以任意调整保险箱上的每个数字，每一次操作可以将其中一位增加1 或减少 1 。 当某位原本为 9 或 0 时可能会向前（左边）进位/退位，当最高位（左边第 一位）上的数字变化时向前的进位或退位忽略。 例如：
 
 00000 的第 5 位减 1 变为 99999 ；
 
@@ -182,72 +175,72 @@ azaazaz
 然后只要发现源字符串和目标字符串相等了，就break掉循环。此时队内都是源字符串和目标字符串相等的元素，只有操作次数不相等，因此遍历一遍，取最小操作次数即可。
 
 
-from collections import deque
-import copy
-n = int(input())
-pwd_1 = input()
-pwd_2 = input()
-inf = 0x3f3f3f3f
+        from collections import deque
+        import copy
+        n = int(input())
+        pwd_1 = input()
+        pwd_2 = input()
+        inf = 0x3f3f3f3f
 
 
-def op_plus(s, i):
-    # 第i位进行加1操作
-    tmp = int(s[i])
-    if tmp == 9:
-        tmp = 0
-        if i != 0:
-            s = op_plus(s, i-1)  # 进行进位操作
-    else:
-        tmp += 1
-    s = s[:i] + str(tmp) + s[i+1:]
-    return s
+        def op_plus(s, i):
+            # 第i位进行加1操作
+            tmp = int(s[i])
+            if tmp == 9:
+                tmp = 0
+                if i != 0:
+                    s = op_plus(s, i-1)  # 进行进位操作
+            else:
+                tmp += 1
+            s = s[:i] + str(tmp) + s[i+1:]
+            return s
 
 
-def op_minus(s, i):
-    # 第i位进行减1操作
-    tmp = int(s[i])
-    if tmp == 0:
-        tmp = 9
-        if i != 0:
-            s = op_minus(s, i-1)
-    else:
-        tmp -= 1
-    s = s[:i] + str(tmp) + s[i+1:]
-    return s
+        def op_minus(s, i):
+            # 第i位进行减1操作
+            tmp = int(s[i])
+            if tmp == 0:
+                tmp = 9
+                if i != 0:
+                    s = op_minus(s, i-1)
+            else:
+                tmp -= 1
+            s = s[:i] + str(tmp) + s[i+1:]
+            return s
 
 
-def bfs(src_old, dst_old, k):
-    deq = deque([[src_old, dst_old, 0, k]])
-    while len(deq) > 0:
-        t = deq.popleft()
-        src, dst, cnt, idx = t
-        if src == dst:
-            break
-        plus_cnt = copy.deepcopy(cnt)
-        src_plus = copy.deepcopy(src)
-        while src_plus[idx - 1] != dst[idx - 1]:
-            src_plus = op_plus(src_plus, idx - 1)
-            plus_cnt += 1
-        deq.append([src_plus, dst, plus_cnt, idx-1])
+        def bfs(src_old, dst_old, k):
+            deq = deque([[src_old, dst_old, 0, k]])
+            while len(deq) > 0:
+                t = deq.popleft()
+                src, dst, cnt, idx = t
+                if src == dst:
+                    break
+                plus_cnt = copy.deepcopy(cnt)
+                src_plus = copy.deepcopy(src)
+                while src_plus[idx - 1] != dst[idx - 1]:
+                    src_plus = op_plus(src_plus, idx - 1)
+                    plus_cnt += 1
+                deq.append([src_plus, dst, plus_cnt, idx-1])
 
-        minus_cnt = copy.deepcopy(cnt)
-        src_minus = copy.deepcopy(src)
-        while src_minus[idx - 1] != dst[idx - 1]:
-            src_minus = op_minus(src_minus, idx - 1)
-            minus_cnt += 1
-        deq.append([src_minus, dst, minus_cnt, idx-1])
+                minus_cnt = copy.deepcopy(cnt)
+                src_minus = copy.deepcopy(src)
+                while src_minus[idx - 1] != dst[idx - 1]:
+                    src_minus = op_minus(src_minus, idx - 1)
+                    minus_cnt += 1
+                deq.append([src_minus, dst, minus_cnt, idx-1])
 
-    min_cnt = inf
-    while len(deq) > 0:
-        t = deq.popleft()
-        src, dst, cnt, idx = t
-        min_cnt = min(min_cnt, cnt)
+            min_cnt = inf
+            while len(deq) > 0:
+                t = deq.popleft()
+                src, dst, cnt, idx = t
+                min_cnt = min(min_cnt, cnt)
 
-    return min_cnt
+            return min_cnt
 
 
-cnt = bfs(pwd_1, pwd_2, n)
-print(cnt)
+        cnt = bfs(pwd_1, pwd_2, n)
+        print(cnt)
 
 
 
@@ -358,9 +351,7 @@ T 字型区域是指形如 (x − 1, y)(x, y)(x + 1, y)(x, y + 1) 的四个点�
 
 【样例说明】
 
-在给定的图中，只有 s4 一开始为 2，因为有两条最短路：1 → 2 → 4, 1 →
-
-3 → 4，任意删掉一条边后，就可以只剩一条最短路。
+在给定的图中，只有 s4 一开始为 2，因为有两条最短路：1 → 2 → 4, 1 →3 → 4，任意删掉一条边后，就可以只剩一条最短路。
 
 【评测用例规模与约定】
 
@@ -376,9 +367,7 @@ T 字型区域是指形如 (x − 1, y)(x, y)(x + 1, y)(x, y + 1) 的四个点�
 
 【问题描述】
 
-给一棵含有 n 个结点的有根树，根结点为 1 ，编号为 i 的点有点权 ai
-
-（i ∈ [1, n]）。现在有两种操作，格式如下：
+给一棵含有 n 个结点的有根树，根结点为 1 ，编号为 i 的点有点权 ai（i ∈ [1, n]）。现在有两种操作，格式如下：
 
 • 1 x y 该操作表示将点 x 的点权改为 y 。
 
