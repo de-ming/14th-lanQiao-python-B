@@ -191,7 +191,6 @@ import copy
 n = int(input())
 pwd_1 = input()
 pwd_2 = input()
-# 两个加减法没有问题
 inf = 0x3f3f3f3f
 
 
