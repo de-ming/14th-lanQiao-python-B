@@ -15,6 +15,7 @@ Python 大学 B 组
 
 ![image](https://user-images.githubusercontent.com/76508404/230752954-245e087d-93db-4dbb-aa45-4e6ad7859050.png)
 
+![image](https://user-images.githubusercontent.com/76508404/230753091-f12afaa8-3087-42a1-aafb-a1769aac7254.png)
 
 
 
@@ -34,6 +35,16 @@ sumi。小蓝想要使得 max{sum1, sum2, · · · , sumK} 的值达到最大，
 【答案提交】
 
 这是一道结果填空的题，你只需要算出结果后提交即可。本题的结果为一 个整数，在提交答案时只填写这个整数，填写多余的内容将无法得分。
+
+
+![image](https://user-images.githubusercontent.com/76508404/230753122-8fe8bc7e-3253-4915-879e-e5842bef9b31.png)
+
+
+![image](https://user-images.githubusercontent.com/76508404/230753112-4ef3c0d3-19eb-42b1-b817-bb7d18ed4618.png)
+
+
+
+
 
 试题 C: 松散子序列
 时间限制: 10.0s 内存限制: 512.0MB 本题总分：10 分
@@ -66,6 +77,20 @@ azaazaz
 
 对于 20% 的评测用例，|s| ≤ 10 ； 对于 40% 的评测用例，|s| ≤ 300 ； 对于 70% 的评测用例，|s| ≤ 5000 ； 对于所有评测用例，1 ≤ |s| ≤ 10 6，字符串中仅包含小写字母。
 
+
+
+![image](https://user-images.githubusercontent.com/76508404/230753173-4fe24f9a-ed67-437a-93d0-5afa386f8ea2.png)
+
+
+![image](https://user-images.githubusercontent.com/76508404/230753179-52928d4a-8b96-4a29-86d2-c92545b042bc.png)
+
+
+
+
+
+
+
+
 试题 D: 管道
 时间限制: 10.0s 内存限制: 512.0MB 本题总分：10 分
 
@@ -87,10 +112,6 @@ azaazaz
 
 3 10 1 1 6 5 10 2
 
-试题D: 管道 5
-
-第十四届蓝桥杯大赛软件赛省赛 Python 大学 B 组
-
 【样例输出】
 
 5
@@ -98,6 +119,14 @@ azaazaz
 【评测用例规模与约定】
 
 对于 30% 的评测用例，n ≤ 200，S i , len ≤ 3000 ； 对于 70% 的评测用例，n ≤ 5000，S i , len ≤ 105 ； 对于所有评测用例，1 ≤ n ≤ 105，1 ≤ S i , len ≤ 109，1 ≤ Li ≤ len，Li−1 < Li。
+
+
+
+
+
+
+
+
 
 试题 E: 保险箱
 时间限制: 10.0s 内存限制: 512.0MB 本题总分：15 分
@@ -126,9 +155,6 @@ azaazaz
 
 输出一行包含一个整数表示答案。
 
-试题E: 保险箱 7
-
-第十四届蓝桥杯大赛软件赛省赛 Python 大学 B 组
 
 【样例输入】
 
@@ -141,6 +167,89 @@ azaazaz
 【评测用例规模与约定】
 
 对于 30% 的评测用例，1 ≤ n ≤ 300 ； 对于 60% 的评测用例，1 ≤ n ≤ 3000 ； 对于所有评测用例，1 ≤ n ≤ 105，x, y 中仅包含数字 0 至 9，可能有前导零。
+
+思路
+求最少操作次数，用bfs。（刚开始用了dfs来做，浪费了些时间）
+
+这个问题主要是要注意加减时的进位、借位。这里编写了op_minus，op_plus两个函数来进行处理。
+
+然后因为加减时的进位借位都是右数（低位）向左数（高位）进位/借位，也就意味着会影响到下一位，所以我们需要先把低位先处理成目标字符，把它固定住。
+
+然后bfs队列中的元素是源字符串src_old，目标字符串dst_old，当前操作次数cnt，当前要操作的位数idx。
+
+然后只要发现源字符串和目标字符串相等了，就break掉循环。此时队内都是源字符串和目标字符串相等的元素，只有操作次数不相等，因此遍历一遍，取最小操作次数即可。
+
+
+from collections import deque
+import copy
+n = int(input())
+pwd_1 = input()
+pwd_2 = input()
+# 两个加减法没有问题
+inf = 0x3f3f3f3f
+
+
+def op_plus(s, i):
+    # 第i位进行加1操作
+    tmp = int(s[i])
+    if tmp == 9:
+        tmp = 0
+        if i != 0:
+            s = op_plus(s, i-1)  # 进行进位操作
+    else:
+        tmp += 1
+    s = s[:i] + str(tmp) + s[i+1:]
+    return s
+
+
+def op_minus(s, i):
+    # 第i位进行减1操作
+    tmp = int(s[i])
+    if tmp == 0:
+        tmp = 9
+        if i != 0:
+            s = op_minus(s, i-1)
+    else:
+        tmp -= 1
+    s = s[:i] + str(tmp) + s[i+1:]
+    return s
+
+
+def bfs(src_old, dst_old, k):
+    deq = deque([[src_old, dst_old, 0, k]])
+    while len(deq) > 0:
+        t = deq.popleft()
+        src, dst, cnt, idx = t
+        if src == dst:
+            break
+        plus_cnt = copy.deepcopy(cnt)
+        src_plus = copy.deepcopy(src)
+        while src_plus[idx - 1] != dst[idx - 1]:
+            src_plus = op_plus(src_plus, idx - 1)
+            plus_cnt += 1
+        deq.append([src_plus, dst, plus_cnt, idx-1])
+
+        minus_cnt = copy.deepcopy(cnt)
+        src_minus = copy.deepcopy(src)
+        while src_minus[idx - 1] != dst[idx - 1]:
+            src_minus = op_minus(src_minus, idx - 1)
+            minus_cnt += 1
+        deq.append([src_minus, dst, minus_cnt, idx-1])
+
+    min_cnt = inf
+    while len(deq) > 0:
+        t = deq.popleft()
+        src, dst, cnt, idx = t
+        min_cnt = min(min_cnt, cnt)
+
+    return min_cnt
+
+
+cnt = bfs(pwd_1, pwd_2, n)
+print(cnt)
+
+
+
 
 试题 F: 树上选点
 时间限制: 10.0s 内存限制: 512.0MB 本题总分：15 分
@@ -171,10 +280,6 @@ azaazaz
 
 11
 
-试题 F: 树上选点 9
-
-第十四届蓝桥杯大赛软件赛省赛 Python 大学 B 组
-
 【评测用例规模与约定】
 
 对于 40% 的评测用例，n ≤ 5000 ； 对于所有评测用例，1 ≤ n ≤ 2 × 105，1 ≤ Fi < i，1 ≤ Vi ≤ 104 。
@@ -199,10 +304,6 @@ T 字型区域是指形如 (x − 1, y)(x, y)(x + 1, y)(x, y + 1) 的四个点�
 【样例输入】
 
 1 3 001 011 111
-
-试题G: T字消除 11
-
-第十四届蓝桥杯大赛软件赛省赛 Python 大学 B 组
 
 【样例输出】
 
@@ -239,13 +340,10 @@ T 字型区域是指形如 (x − 1, y)(x, y)(x + 1, y)(x, y + 1) 的四个点�
 
 【样例输出】
 
-0 0
-
-试题H: 独一无二 13
-
-第十四届蓝桥杯大赛软件赛省赛 Python 大学 B 组
-
-0 1
+0 
+0
+0
+1
 
 【样例说明】
 
@@ -259,9 +357,7 @@ T 字型区域是指形如 (x − 1, y)(x, y)(x + 1, y)(x, y + 1) 的四个点�
 
 1 ≤ ci ≤ 10 。
 
-试题 H: 独一无二 14
 
-第十四届蓝桥杯大赛软件赛省赛Python大学B组
 
 试题 I: 异或和
 
@@ -287,12 +383,16 @@ T 字型区域是指形如 (x − 1, y)(x, y)(x + 1, y)(x, y + 1) 的四个点�
 
 【样例输入】
 
-4 5 1 2 3 4 1 2 1 3 2 4
-
-试题I: 异或和 15
-第十四届蓝桥杯大赛软件赛省赛 Python 大学 B 组
-
-2 1 1 1 0 2 1 2 2
+4 5
+1 2
+3 4
+1 2
+1 3
+2 4
+2 1
+1 1 0
+2 1
+2 2
 
 【样例输出】
 
@@ -300,13 +400,8 @@ T 字型区域是指形如 (x − 1, y)(x, y)(x + 1, y)(x, y + 1) 的四个点�
 
 【评测用例规模与约定】
 
-对于 30% 的评测用例，n, m ≤ 1000； 对于所有评测用例，1 ≤ n, m ≤ 100000 ，0 ≤ ai , y ≤ 100000 ，1 ≤ ui , vi , x ≤ n
+对于 30% 的评测用例，n, m ≤ 1000； 对于所有评测用例，1 ≤ n, m ≤ 100000 ，0 ≤ ai , y ≤ 100000 ，1 ≤ ui , vi , x ≤ n。
 
-。
-
-试题 I: 异或和 16
-
-第十四届蓝桥杯大赛软件赛省赛 Python 大学 B 组
 
 试题 J: 混乱的数组
 
@@ -336,30 +431,4 @@ T 字型区域是指形如 (x − 1, y)(x, y)(x + 1, y)(x, y + 1) 的四个点�
 
 对于 30% 的评测用例，x ≤ 10 ； 对于 60% 的评测用例，x ≤ 100 ； 对于所有评测用例，1 ≤ x ≤ 109 。
 
-试题 J: 混乱的数组 17
-【问题描述】
 
-给定一个正整数 x，请找出一个尽可能短的仅含正整数的数组 A 使得 A 中 恰好有 x 对 i, j 满足 Ai > Aj 。 如果存在多个这样的数组，请输出字典序最小的那个。
-
-【输入格式】
-
-输入一行包含一个整数表示 x 。
-
-【输出格式】
-
-输出两行。 第一行包含一个整数 n ，表示所求出的数组长度。 第二行包含 n 个整数 Ai，相邻整数之间使用一个空格分隔，依次表示数组 中的每个数。
-
-【样例输入】
-
-3
-
-【样例输出】
-
-3 3 2 1
-
-【评测用例规模与约定】
-
-对于 30% 的评测用例，x ≤ 10 ； 对于 60% 的评测用例，x ≤ 100 ； 对于所有评测用例，1 ≤ x ≤ 10 9 。
-————————————————
-版权声明：本文为CSDN博主「Dilemma46」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
-原文链接：https://blog.csdn.net/qq_62029644/article/details/130029647
