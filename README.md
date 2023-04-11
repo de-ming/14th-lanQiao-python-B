@@ -273,7 +273,9 @@ azaazaz
 【样例输入】
 
 5 
+
 1 2 3 2
+
 2 1 9 3 5
 
 【样例输出】
@@ -283,6 +285,67 @@ azaazaz
 【评测用例规模与约定】
 
 对于 40% 的评测用例，n ≤ 5000 ； 对于所有评测用例，1 ≤ n ≤ 2 × 105，1 ≤ Fi < i，1 ≤ Vi ≤ 104 。
+
+
+
+思路
+题面的三个条件可以转化为：
+一个点选了之后，父或子不能选。
+同一层只能选一个
+求选所有点的和的最大值
+这样转化之后，问题就是很经典的选或不选问题。
+
+对第一个条件，我们从上往下遍历，枚举每一层选或不选。
+
+对于第二个条件，我们对一层选的时候求该层最大值即可。
+
+由于一层只能选一个，那么进行层序遍历就可以了。
+
+时间复杂度 O(n)，每个点只被遍历了一次。
+
+代码
+        from collections import defaultdict
+
+        N = 2_000_10
+        # 存放权值
+        w = [0 for i in range(N)]
+        # 存放父节点
+        f = [0 for i in range(N)]
+        # 存放点的高度
+        h = [0 for i in range(N)]
+        # 存放每一层的点
+        h_g = defaultdict(list)
+        dp = [0 for i in range(N)]
+
+        h_g[1].append(1)
+
+        n = int(input())
+        f[2:n] = list(map(int, input().split()))
+        f[1] = -1
+        w[1:n] = list(map(int, input().split()))
+
+        for i in range(2, n + 1):
+            # 一个点的高度是他父亲的高度加一
+            h[i] = h[f[i]] + 1
+            # 为了方便遍历，直接将这个点加入他所在的层
+            h_g[h[i] + 1].append(i)
+
+        dp[1] = w[1]
+        # 从第二层遍历到最后一层
+        for i in range(2, max(h[1:n]) + 1):
+            i_max = max([w[j] for j in h_g[i]])
+            dp[i] = max(dp[i - 2] + i_max, dp[i - 1])
+
+        print(dp[max(h[1:n])])
+
+
+
+
+
+
+
+
+
 
 试题 G: T 字消除
 时间限制: 10.0s 内存限制: 512.0MB 本题总分：20 分
@@ -326,6 +389,8 @@ XXX
 
 对于 10% 的评测用例，n = 3 ； 对于 40% 的评测用例，n ≤ 30 ； 对于所有评测用例，3 ≤ n ≤ 2000，矩阵中仅含 0 和 1 。
 
+
+
 试题 H: 独一无二
 时间限制: 30.0s 内存限制: 512.0MB 本题总分：20 分
 
@@ -344,17 +409,25 @@ XXX
 【样例输入】
 
 4 4
+
 1 2 1
+
 1 3 2
+
 2 4 2
+
 3 4 1
 
 【样例输出】
 
 0 
+
 0
+
 0
+
 1
+
 
 【样例说明】
 
@@ -362,9 +435,64 @@ XXX
 
 【评测用例规模与约定】
 
-对于 30% 的评测用例，n ≤ 1000； 对于所有评测用例，n ≤ 105 ，0 ≤ m ≤ min{ n(n−1) 2 , 106 } ，1 ≤ ui , vi ≤ n ，
+对于 30% 的评测用例，n ≤ 1000； 对于所有评测用例，n ≤ 105 ，0 ≤ m ≤ min{ n(n−1) 2 , 106 } ，1 ≤ ui , vi ≤ n ，1 ≤ ci ≤ 10 。
 
-1 ≤ ci ≤ 10 。
+
+思路
+单源最短路，无负权边，首选就是dijkstra。画几个图稍微总结下规律就会发现只要每次出现相同距离的时候，任意删除一条边就可以得到正确的结果，属于贪心的思想。
+
+代码
+        import heapq
+
+        N = 10
+        g = {}
+        inf = 0x3f3f3f3f
+        st = [0 for i in range(N)]
+        dist = [inf for i in range(N)]
+
+        cnt = [0 for i in range(N)]
+
+
+        def dijkstra():
+            dist[1] = 0
+            q = []
+            heapq.heappush(q, (0, 1))
+            while q:
+                dis, cur = heapq.heappop(q)
+                if st[cur] == 1:
+                    continue
+                st[cur] = 1
+                if cur in g:
+                    for c, d in g[cur]:
+                        if d + dist[cur] == dist[c]:
+                            cnt[c] += 1
+                        if d + dist[cur] < dist[c]:
+                            dist[c] = d + dist[cur]
+                            heapq.heappush(q, (dist[c], c))
+
+
+        n, m = map(int, input().split())
+        for _ in range(m):
+            a, b, c = map(int, input().split())
+            if a in g:
+                g[a].append((b, c))
+            else:
+                g[a] = [(b, c)]
+
+        dijkstra()
+
+        for i in range(1, n + 1):
+            if dist[i] == inf:
+                cnt[i] = -1
+            print(cnt[i])
+
+
+
+
+
+
+
+
 
 
 
@@ -391,24 +519,109 @@ XXX
 【样例输入】
 
 4 4
+
 1 2 3 4
+
 1 2
+
 1 3
+
 2 4
+
 2 1
+
 1 1 0
+
 2 1
+
 2 2
 
 【样例输出】
 
 4 
+
 5 
+
 6
 
 【评测用例规模与约定】
 
 对于 30% 的评测用例，n, m ≤ 1000； 对于所有评测用例，1 ≤ n, m ≤ 100000 ，0 ≤ ai , y ≤ 100000 ，1 ≤ ui , vi , x ≤ n。
+
+
+a维护以x为根的子树异或和, prev维护每个结点的点权。
+每次change只需要向上更改贡献即可。
+正解应该是 dfs序+树状数组/线段树 维护
+
+        import bisect
+        import sys
+        import copy
+        from collections import deque, defaultdict
+        import heapq
+        from itertools import accumulate, permutations, combinations
+        import math
+
+        input = lambda: sys.stdin.readline().rstrip("\r\n")
+        printf = lambda d: sys.stdout.write(str(d) + "\n")
+
+
+        # INF = 0x3f3f3f3f3f3f
+
+
+        # sys.setrecursionlimit(100000)
+
+
+        def read():
+            line = sys.stdin.readline().strip()
+            while not line:
+                line = sys.stdin.readline().strip()
+            return map(int, line.split())
+
+
+        def I():
+            return int(input())
+
+
+        def dfs(u):
+            for v in g[u]:
+                a[u] ^= dfs(v)
+            return a[u]
+
+
+        def change(u, x, y):
+            if u == x:
+                a[x] = a[x] ^ prev[x] ^ y
+                # 注意要把点权也修改了，比赛的时候忘记了。。。。
+                prev[x] = y
+                return prev[x] ^ y
+            for v in g[u]:
+                a[u] ^= change(v, x, y)
+            return 0
+
+
+        n, m = read()
+        a = list(read())
+        a = [0] + a
+        prev = copy.deepcopy(a)
+        g = [[] for _ in range(n + 1)]
+        for i in range(n - 1):
+            u, v = read()
+            g[u].append(v)
+
+        dfs(1)
+
+        for _ in range(m):
+            op = list(read())
+            if op[0] == 1:
+                x, y = op[1], op[2]
+                change(1, x, y)
+            if op[0] == 2:
+                x = op[1]
+                print(a[x])
+
+
+
+
 
 
 试题 J: 混乱的数组
